@@ -13,8 +13,12 @@
 #endif
 
 #include "wrappers.h"
-STDAPI CreateObject(const GUID *clsid, const GUID *iid, void **outObject);
+
+
+STDAPI CreateObject(const GUID* clsid, const GUID* iid, void** outObject);
+
 extern "C" {
+
 
 IArchiveOpenCallback_Wrapper *
 CreateIArchiveOpenCallback(IArchiveOpenCallback_Wrapper_ThisCallback setTotal,
@@ -303,29 +307,48 @@ LONG ISetProperties_SetProperties(ISetProperties* that, const wchar_t * const *n
 
 ISetProperties* Cast_IOutArchive(IOutArchive* outArchive)
 {
-    return dynamic_cast<ISetProperties*>(outArchive);
+    void* ptr = nullptr;
+    if (outArchive->QueryInterface(IID_ISetProperties, (void**)&ptr) != S_OK)
+        return nullptr;
+    return static_cast<ISetProperties*>(ptr);
 }
 
 ISetProperties* Cast_IInArchive(IInArchive* inArchive)
 {
-    return dynamic_cast<ISetProperties*>(inArchive);
+    void* ptr = nullptr;
+    if (inArchive->QueryInterface(IID_ISetProperties, (void**)&ptr) != S_OK)
+        return nullptr;
+    return static_cast<ISetProperties*>(ptr);
 }
 ISequentialOutStream* Cast_IOutStream(IOutStream* outStream)
 {
-    return dynamic_cast<ISequentialOutStream*>(outStream);
+    void* ptr = nullptr;
+    auto res = outStream->QueryInterface(IID_ISequentialOutStream, (void**)&ptr);
+    if (res != S_OK)
+        return nullptr;
+    return static_cast<ISequentialOutStream*>(ptr);
 }
 ISequentialInStream* Cast_IInStream(IInStream* inStream)
 {
-    return dynamic_cast<ISequentialInStream*>(inStream);
+    void* ptr = nullptr;
+    if (inStream->QueryInterface(IID_ISequentialInStream, (void**)&ptr) != S_OK)
+        return nullptr;
+    return static_cast<ISequentialInStream*>(ptr);
 }
 
 IInArchive* Cast_IOutArchive_IInArchive(IOutArchive* archive)
 {
-    return dynamic_cast<IInArchive*>(archive);
+    void* ptr = nullptr;
+    if (archive->QueryInterface(IID_IInArchive, (void**)&ptr) != S_OK)
+        return nullptr;
+    return static_cast<IInArchive*>(ptr);
 }
 IOutArchive* Cast_IInArchive_IOutArchive(IInArchive* archive)
 {
-    return dynamic_cast<IOutArchive*>(archive);
+    void* ptr = nullptr;
+    if (archive->QueryInterface(IID_IOutArchive, (void**)&ptr) != S_OK)
+        return nullptr;
+    return static_cast<IOutArchive*>(ptr);
 }
 LONG CreatePseudoCOMObject(const GUID *clsID, const GUID *iid, void **outObject)
 {
@@ -334,7 +357,8 @@ LONG CreatePseudoCOMObject(const GUID *clsID, const GUID *iid, void **outObject)
     if (*outObject) {
         //((IUnknown*)*outObject)->AddRef();
     }
-    std::cout << "After " << __FUNCTION_NAME__ << " - " << res << std::endl;
+
+    std::cout << "After " << __FUNCTION_NAME__ << " - " << res << " ptr: " << *outObject << std::endl;
     return res;
 }
 
